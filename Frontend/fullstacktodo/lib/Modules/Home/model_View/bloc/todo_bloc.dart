@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/Todo.dart';
 import 'package:fullstacktodo/Modules/Home/data/repo/todoRepo.dart';
-import 'package:meta/meta.dart';
 
 part 'todo_event.dart';
 part 'todo_state.dart';
