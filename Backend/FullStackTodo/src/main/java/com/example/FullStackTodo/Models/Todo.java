@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class Todo {
     private LocalDate creationDate;
     private LocalDate dueDate;
     private List<SubTask> subTasks;
-    private LocalTime dueTime;
+    private LocalDateTime dueTime;
     private Status taskStatus;
 
 

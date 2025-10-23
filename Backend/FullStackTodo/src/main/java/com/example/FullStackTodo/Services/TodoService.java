@@ -65,6 +65,10 @@ public class TodoService {
         tempTodo.setName(todo.getName());
         tempTodo.setDescription(todo.getDescription());
         tempTodo.setIsCompleted(todo.getIsCompleted());
+        tempTodo.setDueDate(todo.getDueDate());
+        tempTodo.setDueTime(todo.getDueTime());
+            tempTodo.setTaskStatus(todo.getTaskStatus());
+            tempTodo.setSubTasks(todo.getSubTasks());
         repo.save(tempTodo);
         return "Update Done...";
         }

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:device_preview/device_preview.dart';
-import 'package:fullstacktodo/Modules/Home/view/Pages/TodoHomePage.dart';
+import 'package:fullstacktodo/Modules/Home/view/Pages/Home.dart';
 
 void main() => runApp(
   DevicePreview(
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Homepage(),
+      home: Home(),
     );
   }
 }
