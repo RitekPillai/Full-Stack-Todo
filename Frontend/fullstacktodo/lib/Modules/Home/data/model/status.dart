@@ -1,1 +1,1 @@
-enum Status { notstarted, inprogress, completed, onhold, dropped }
+enum Status { NotStarted, InProgress, Completed, OnHold, Dropped }

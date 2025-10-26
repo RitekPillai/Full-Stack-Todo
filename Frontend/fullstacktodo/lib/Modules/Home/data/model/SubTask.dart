@@ -10,4 +10,10 @@ class SubTasks {
       isComplete: json['isComplete'] as bool,
     );
   }
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['title'] = this.title;
+    data['isComplete'] = this.isComplete;
+    return data;
+  }
 }
