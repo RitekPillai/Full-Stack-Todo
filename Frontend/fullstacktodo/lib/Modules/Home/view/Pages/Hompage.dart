@@ -184,21 +184,14 @@ class Hompage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final task = todayTask[index];
 
-                      return todoTile(
-                        task.name,
-                        task.description,
-                        task.isCompleted,
-                        task.dueDate,
-                        task.dueTime,
-                        task.subTask,
-                      );
+                      return todoTile(todayTask[index], context, 1);
                     },
                   ),
                 ),
               ],
             );
           } else if (state is TodoLoading) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: Text("Yo"));
           }
           return Container();
         },
@@ -211,7 +204,7 @@ class Hompage extends StatelessWidget {
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  Todocreate(),
+                  Todocreate(index: 0),
               transitionDuration: Durations.medium4,
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
@@ -223,8 +216,8 @@ class Hompage extends StatelessWidget {
                     ).chain(CurveTween(curve: curve));
                     var offsetAnimation = animation.drive(tween);
                     return SlideTransition(
-                      child: child,
                       position: offsetAnimation,
+                      child: child,
                     );
                   },
             ),

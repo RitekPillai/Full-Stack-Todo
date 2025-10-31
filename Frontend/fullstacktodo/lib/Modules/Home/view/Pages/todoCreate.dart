@@ -13,22 +13,39 @@ import 'package:drop_down_list/drop_down_list.dart';
 import 'package:flutter/material.dart';
 
 class Todocreate extends StatefulWidget {
-  const Todocreate({super.key});
+  int index;
+  Todo? todo;
+  Todocreate({required this.index, super.key, this.todo});
 
   @override
   State<Todocreate> createState() => _TodocreateState();
 }
 
+var currentStatus = Status.InProgress;
+
 class _TodocreateState extends State<Todocreate> {
-  Status currentStatus = Status.NotStarted;
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.todo != null && widget.index != 0) {
+      nameController.text = widget.todo!.name;
+      descriptionController.text = widget.todo!.description;
+      selectedDate = widget.todo!.dueDate!;
+      currentStatus = widget.todo!.taskStatus;
+      checkListName.addAll(widget.todo!.subTask);
+
+      _selectedTime = TimeOfDay.fromDateTime(widget.todo!.dueTime!);
+    }
+  }
 
   TimeOfDay _selectedTime = TimeOfDay.now(); // Initial time
   DateTime selectedDate = DateTime.now();
-  TextEditingController checklistName = new TextEditingController();
+  TextEditingController checklistName = TextEditingController();
   //VARIABLESSSSSSS
 
-  TextEditingController nameController = new TextEditingController();
-  TextEditingController descriptionController = new TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   List<SubTasks> checkListName = [];
   @override
   Widget build(BuildContext context) {
@@ -56,7 +73,7 @@ class _TodocreateState extends State<Todocreate> {
       }
     }
 
-    void _showDialogBox(context, TextEditingController checklistcontroller) {
+    void showDialogBox(context, TextEditingController checklistcontroller) {
       showDialog(
         context: context,
         builder: (context) {
@@ -65,7 +82,10 @@ class _TodocreateState extends State<Todocreate> {
             actions: [
               Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: CustomTile("Name:", checklistcontroller),
+                child: TextField(
+                  controller: checklistcontroller,
+                  decoration: InputDecoration(hintText: "Enter Title"),
+                ),
               ),
               const SizedBox(height: 20),
               Center(
@@ -102,7 +122,11 @@ class _TodocreateState extends State<Todocreate> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text("Create Your Task")),
+      appBar: AppBar(
+        title: widget.index == 0
+            ? const Text("Create Your Task")
+            : const Text("Update Your Task"),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -111,12 +135,22 @@ class _TodocreateState extends State<Todocreate> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTile("Title", nameController),
+              CustomTile(
+                widget.index,
+                "Title",
+                nameController,
+                todo: widget.todo,
+              ),
               SizedBox(height: 20),
-              CustomTile("Description", descriptionController),
+              CustomTile(
+                widget.index,
+                "Description",
+                descriptionController,
+                todo: widget.todo,
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
-                //-------------------Calender
+                //-------------------------------------------------------------Calender
                 onPressed: () {
                   BottomPicker.date(
                     headerBuilder: (context) {
@@ -228,30 +262,26 @@ class _TodocreateState extends State<Todocreate> {
                 ),
 
                 onPressed: () {
-                  DropDownState<String>(
-                    dropDown: DropDown<String>(
+                  DropDownState<Status>(
+                    dropDown: DropDown<Status>(
                       isSearchVisible: false,
-                      data: <SelectedListItem<String>>[
-                        SelectedListItem<String>(data: Status.NotStarted.name),
-                        SelectedListItem<String>(data: Status.InProgress.name),
-                        SelectedListItem<String>(data: Status.Completed.name),
-                        SelectedListItem<String>(data: Status.OnHold.name),
-                        SelectedListItem<String>(data: Status.Dropped.name),
+                      data: <SelectedListItem<Status>>[
+                        SelectedListItem<Status>(data: Status.NotStarted),
+                        SelectedListItem<Status>(data: Status.InProgress),
+                        SelectedListItem<Status>(data: Status.Completed),
+                        SelectedListItem<Status>(data: Status.OnHold),
+                        SelectedListItem<Status>(data: Status.Dropped),
                       ],
+
                       onSelected: (selectedItems) {
                         setState(() {
-                          if (selectedItems == Status.NotStarted) {
-                            currentStatus = Status.NotStarted;
-                          } else if (selectedItems == Status.InProgress) {
-                            currentStatus = Status.InProgress;
-                          } else if (selectedItems == Status.Completed) {
-                            currentStatus = Status.Completed;
-                          } else if (selectedItems == Status.OnHold) {
-                            currentStatus = Status.OnHold;
-                          } else if (selectedItems == Status.Dropped) {
-                            currentStatus = Status.Dropped;
-                          }
+                          final Status selectedName = selectedItems.first.data;
+                          currentStatus = Status.values.firstWhere(
+                            (status) => status.name == selectedName.name,
+                            orElse: () => Status.NotStarted,
+                          );
                         });
+                        print(currentStatus);
                       },
                     ),
                   ).showModal(context);
@@ -271,7 +301,7 @@ class _TodocreateState extends State<Todocreate> {
               const SizedBox(height: 20),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.amber,
+                  color: Colors.amber.shade100,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
@@ -294,7 +324,7 @@ class _TodocreateState extends State<Todocreate> {
 
                         TextButton(
                           onPressed: () {
-                            _showDialogBox(context, checklistName);
+                            showDialogBox(context, checklistName);
                           },
                           child: Text(
                             "+ Add",
@@ -357,24 +387,37 @@ class _TodocreateState extends State<Todocreate> {
                     fixedSize: WidgetStatePropertyAll(Size(300, 50)),
                   ),
 
+                  // Inside the final ElevatedButton's onPressed:
                   onPressed: () {
-                    Todo newTodo = Todo(
-                      dueDate: selectedDate,
+                    Todo finalTodo = Todo(
+                      dueDate:
+                          selectedDate, // ✅ CORRECT: Use the date selected by the user
                       taskStatus: currentStatus,
                       subTask: checkListName,
-                      id: 0,
+
+                      id: widget.index == 0 ? 0 : widget.todo!.id!,
+
                       name: nameController.text,
                       description: descriptionController.text,
-                      isCompleted: false,
-                      creationDate: DateTime.now(),
+
+                      isCompleted: widget.todo?.isCompleted ?? false,
+                      creationDate: widget.todo?.creationDate ?? DateTime.now(),
+
                       dueTime: combineDateTimeAndTimeOfDay(
-                        DateTime.now(),
+                        selectedDate,
                         _selectedTime,
                       ),
                     );
-                    BlocProvider.of<TodoBloc>(
-                      context,
-                    ).add(CreateTodoEvent(newTodo));
+
+                    // Dispatch the correct event
+                    widget.index == 0
+                        ? BlocProvider.of<TodoBloc>(
+                            context,
+                          ).add(CreateTodoEvent(finalTodo))
+                        : BlocProvider.of<TodoBloc>(
+                            context,
+                            // ✅ FIX 4: Pass ONLY the Todo object for UpdateTodoEvent
+                          ).add(UpdateTodoEvent(finalTodo));
 
                     Navigator.pop(context);
                   },
@@ -394,9 +437,11 @@ class _TodocreateState extends State<Todocreate> {
 
 class CustomTile extends StatelessWidget {
   final String title;
+  int index;
+  Todo? todo;
   final TextEditingController controller;
 
-  const CustomTile(this.title, this.controller, {super.key});
+  CustomTile(this.index, this.title, this.controller, {this.todo, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -414,9 +459,14 @@ class CustomTile extends StatelessWidget {
         Expanded(
           child: TextField(
             controller: controller,
+
             maxLines: title == "Description" ? 3 : 1,
             decoration: InputDecoration(
-              hintText: 'Enter your ${title.toLowerCase()}',
+              hintText: index == 0
+                  ? 'Enter your ${title.toLowerCase()}'
+                  : title == "Description"
+                  ? todo!.description
+                  : todo!.name,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
               ),

@@ -25,6 +25,15 @@ class TodoCreated extends TodoState {
   List<Object> get props => [todo];
 }
 
+class TodoUpdate extends TodoState {
+  final Todo todo;
+  const TodoUpdate(this.todo);
+  @override
+  List<Object> get props => [todo];
+}
+
+class TodoDeleted extends TodoState {}
+
 class TodoFailed extends TodoState {
   final String error;
   const TodoFailed(this.error);

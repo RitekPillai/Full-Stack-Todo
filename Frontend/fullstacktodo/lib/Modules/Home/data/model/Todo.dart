@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+
 import 'package:fullstacktodo/Modules/Home/data/model/SubTask.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/status.dart';
 
 class Todo extends Equatable {
   final int? id;
   final String name;
-  final bool isCompleted;
+  bool? isCompleted;
   final DateTime? creationDate;
   final DateTime? dueDate;
   final Status taskStatus;
@@ -14,7 +14,7 @@ class Todo extends Equatable {
   final List<SubTasks> subTask;
   final DateTime? dueTime;
 
-  const Todo({
+  Todo({
     required this.dueDate,
     required this.taskStatus,
     required this.subTask,
@@ -37,23 +37,19 @@ class Todo extends Equatable {
     data['dueDate'] = dueDate?.toIso8601String();
     data['dueTime'] = dueTime?.toIso8601String();
 
-    data['subTasks'] = this.subTask.map((v) => v.toJson()).toList();
+    data['subTasks'] = subTask.map((v) => v.toJson()).toList();
 
-    data['taskStatus'] = this.taskStatus.name;
-    data['description'] = this.description;
+    data['taskStatus'] = taskStatus.name;
+    data['description'] = description;
 
     return data;
   }
 
   factory Todo.fromJson(Map<String, dynamic> json) {
-    final String? statusString = json['status'] as String?;
+    final String statusname = json['taskStatus'] as String;
     final Status status = Status.values.firstWhere(
-      (e) =>
-          e.toString().split('.').last.toUpperCase() ==
-          statusString?.toUpperCase(),
-      orElse: () => Status.NotStarted,
+      (element) => element.name == statusname,
     );
-
     final List<dynamic> subTaskJson = json['subTasks'] as List<dynamic>;
     final List<SubTasks> parsedTask = subTaskJson
         .map(

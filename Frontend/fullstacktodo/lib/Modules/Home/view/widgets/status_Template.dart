@@ -24,7 +24,7 @@ Widget status_Template(
               end: end,
             ).chain(CurveTween(curve: curve));
             var offsetAnimation = animation.drive(tween);
-            return SlideTransition(child: child, position: offsetAnimation);
+            return SlideTransition(position: offsetAnimation, child: child);
           },
         ),
       );

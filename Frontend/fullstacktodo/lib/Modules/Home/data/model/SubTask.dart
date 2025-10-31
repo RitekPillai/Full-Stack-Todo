@@ -11,9 +11,9 @@ class SubTasks {
     );
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['title'] = this.title;
-    data['isComplete'] = this.isComplete;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['title'] = title;
+    data['isComplete'] = isComplete;
     return data;
   }
 }
