@@ -1,11 +1,13 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fullstacktodo/Modules/Home/data/model/SubTask.dart';
 
 import 'package:fullstacktodo/Modules/Home/data/model/Todo.dart';
 
 import 'package:fullstacktodo/Modules/Home/model_View/bloc/todo_bloc.dart';
 import 'package:fullstacktodo/Modules/Home/view/Pages/todoCreate.dart';
-import 'package:fullstacktodo/Modules/Home/view/Pages/updateTodo.dart';
+
 import 'package:intl/intl.dart';
 
 String dateCheck(DateTime date) {
@@ -90,7 +92,25 @@ Widget todoTile(Todo todo, BuildContext context, int? index) {
                       const SizedBox(height: 10),
                       Text(todo.name, style: TextStyle(fontSize: 25)),
                       const SizedBox(height: 5),
-                      Text(todo.description, style: TextStyle(fontSize: 20)),
+                      if (todo.subTask.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: todo.subTask
+                              .map(
+                                (e) => subTaskTile(e, (newValue) {
+                                  if (newValue != null) {
+                                    e.isComplete = newValue;
+
+                                    BlocProvider.of<TodoBloc>(
+                                      context,
+                                    ).add(UpdateTodoEvent(todo));
+                                  }
+                                }),
+                              )
+                              .toList(),
+                        ),
+                      if (todo.subTask.isEmpty)
+                        Text(todo.description, style: TextStyle(fontSize: 20)),
                     ],
                   ),
                   const SizedBox(width: 23),
@@ -116,11 +136,19 @@ Widget todoTile(Todo todo, BuildContext context, int? index) {
   );
 }
 
-_showDialog(context) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(actions: [Text("test")]);
-    },
+Widget subTaskTile(SubTasks subTask, ValueChanged onPressed) {
+  return Row(
+    children: [
+      Checkbox(
+        value: subTask.isComplete,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(20),
+          side: BorderSide(color: Colors.blue),
+        ),
+        onChanged: onPressed,
+      ),
+
+      Text(subTask.title, style: TextStyle(fontSize: 20)),
+    ],
   );
 }

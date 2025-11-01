@@ -39,7 +39,16 @@ class _TodocreateState extends State<Todocreate> {
     }
   }
 
-  TimeOfDay _selectedTime = TimeOfDay.now(); // Initial time
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    nameController.dispose();
+    descriptionController.dispose();
+    checklistName.dispose();
+    super.dispose();
+  }
+
+  TimeOfDay _selectedTime = TimeOfDay.now();
   DateTime selectedDate = DateTime.now();
   TextEditingController checklistName = TextEditingController();
   //VARIABLESSSSSSS
@@ -387,11 +396,9 @@ class _TodocreateState extends State<Todocreate> {
                     fixedSize: WidgetStatePropertyAll(Size(300, 50)),
                   ),
 
-                  // Inside the final ElevatedButton's onPressed:
                   onPressed: () {
                     Todo finalTodo = Todo(
-                      dueDate:
-                          selectedDate, // ✅ CORRECT: Use the date selected by the user
+                      dueDate: selectedDate,
                       taskStatus: currentStatus,
                       subTask: checkListName,
 
@@ -409,14 +416,12 @@ class _TodocreateState extends State<Todocreate> {
                       ),
                     );
 
-                    // Dispatch the correct event
                     widget.index == 0
                         ? BlocProvider.of<TodoBloc>(
                             context,
                           ).add(CreateTodoEvent(finalTodo))
                         : BlocProvider.of<TodoBloc>(
                             context,
-                            // ✅ FIX 4: Pass ONLY the Todo object for UpdateTodoEvent
                           ).add(UpdateTodoEvent(finalTodo));
 
                     Navigator.pop(context);

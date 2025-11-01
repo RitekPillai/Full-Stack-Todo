@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/Todo.dart';
+import 'package:fullstacktodo/Modules/Home/data/model/status.dart';
 import 'package:fullstacktodo/Modules/Home/model_View/bloc/todo_bloc.dart';
 import 'package:fullstacktodo/Modules/Home/view/widgets/todo_Tile.dart';
 

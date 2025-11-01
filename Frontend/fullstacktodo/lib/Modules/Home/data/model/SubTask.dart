@@ -1,6 +1,6 @@
 class SubTasks {
   final String title;
-  final bool isComplete;
+  bool isComplete;
 
   SubTasks({required this.title, required this.isComplete});
 
