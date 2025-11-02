@@ -4,9 +4,12 @@ package com.example.FullStackTodo.Services;
 import com.example.FullStackTodo.Models.DatabaseSequence;
 import com.example.FullStackTodo.Models.Todo;
 
+import com.example.FullStackTodo.Models.User;
 import com.example.FullStackTodo.Repo.TodoRepo;
+import io.jsonwebtoken.Jwt;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,38 +24,48 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Service
 public class TodoService {
-    private TodoRepo repo;
-    private MongoOperations mongoOperations ;
+    private final TodoRepo repo;
+    private final MongoOperations mongoOperations ;
+    private final DatabaseSeqService databaseSeqService ;
 
-    public  TodoService(TodoRepo repo, MongoOperations mongoOperations){
+
+    public  TodoService(TodoRepo repo, MongoOperations mongoOperations, DatabaseSeqService databaseSeqService){
         this.repo = repo;
         this.mongoOperations = mongoOperations;
 
+        this.databaseSeqService = databaseSeqService;
+    }
+/// getting the userId for personal Todos
+    public long getUserId() throws Exception {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal!=null){
+            User user = (User) principal;
+            return user.getId();
+        }
+        throw  new Exception("user is not Authenticated");
     }
 
-    public long generateSequence(String seqName) {
-        DatabaseSequence counter = mongoOperations.findAndModify(query(where("_id").is(seqName)),
-                new Update().inc("seq",1), options().returnNew(true).upsert(true),
-                DatabaseSequence.class);
-        return !Objects.isNull(counter) ? counter.getSeq() : 1;
-    }
-
-    public Todo addTodo(Todo todo){
 
 
-        todo.setId(generateSequence(Todo.SEQUENCE_NAME));
+    public Todo addTodo(Todo todo) throws Exception {
+
+
+        todo.setId(databaseSeqService.generateSequence(Todo.SEQUENCE_NAME));
         todo.setCreationDate(LocalDate.now());
 
-
+        todo.setUserId(getUserId());
        return repo.save(todo);
 
     }
 
-    public List<Todo> getAllTodos() {
-        return repo.findAll();
+    public List<Todo> getAllTodos() throws Exception {
+    long id = getUserId();
+        return repo.findAllByUserId(id);
     }
 
     public String deleteTodo(long id) {
+
+   
         repo.deleteById(id);
         return  "Deleted....";
     }

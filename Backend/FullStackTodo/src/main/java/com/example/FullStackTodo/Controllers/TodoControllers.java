@@ -20,12 +20,12 @@ public class TodoControllers {
     public Todo  addTodo(
             @RequestBody Todo todo
 
-        ){
+        ) throws Exception {
             return todoService.addTodo(todo);
         }
 
         @GetMapping
-    public List<Todo> getAllTodos(){
+    public List<Todo> getAllTodos() throws Exception {
         return todoService.getAllTodos();
         }
 

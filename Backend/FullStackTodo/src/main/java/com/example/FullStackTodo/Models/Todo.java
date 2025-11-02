@@ -30,6 +30,7 @@ public class Todo {
     private List<SubTask> subTasks;
     private LocalDateTime dueTime;
     private Status taskStatus;
+    private Long userId;
 
 
 }
