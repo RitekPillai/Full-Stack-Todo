@@ -4,6 +4,7 @@ package com.example.FullStackTodo.Services;
 import com.example.FullStackTodo.DTO.LoginRequestDTO;
 import com.example.FullStackTodo.DTO.LoginResponseDTO;
 import com.example.FullStackTodo.DTO.SignUpUserDto;
+import com.example.FullStackTodo.Models.RefreshToken;
 import com.example.FullStackTodo.Models.User;
 import com.example.FullStackTodo.Repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class WebSecurityService {
     @Autowired
     private AuthUtil authUtil;
 
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+
         public WebSecurityService(UserRepo userRepo,DatabaseSeqService databaseSeqService,PasswordEncoder passwordEncoder){
             this.userRepo = userRepo;
             this.databaseSeqService = databaseSeqService;
@@ -37,8 +41,8 @@ public class WebSecurityService {
 
 
     public ResponseEntity<SignUpUserDto> signUp(SignUpUserDto signUpUserDto) throws Exception {
-        Optional<User> oUser =  userRepo.findByEmail(signUpUserDto.getEmail());
-        if(oUser.isPresent()) throw new Exception("Email Already Exsist");
+        User oUser =  userRepo.findByEmail(signUpUserDto.getEmail());
+        if(oUser!=null) throw new Exception("Email Already Exsist");
         long id= databaseSeqService.generateSequence(User.SEQUENCE_NAME);
         String encodePassword = passwordEncoder.encode(signUpUserDto.getPassword());
         User User = new User(id, signUpUserDto.getEmail(), signUpUserDto.getUsername(), encodePassword);
@@ -52,8 +56,10 @@ public class WebSecurityService {
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(), loginRequestDTO.getPassword()));
         User user = (User) authentication.getPrincipal();
+
         String token = authUtil.generateJWTToken(user);
 
-        return new LoginResponseDTO(token,user.getId() );
+        RefreshToken refreshToken = refreshTokenService.generateToken(user.getEmail());
+        return new LoginResponseDTO(token,user.getId() ,refreshToken.getToken());
     }
 }
