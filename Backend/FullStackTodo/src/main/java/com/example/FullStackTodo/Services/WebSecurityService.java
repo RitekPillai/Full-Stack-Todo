@@ -4,6 +4,7 @@ package com.example.FullStackTodo.Services;
 import com.example.FullStackTodo.DTO.LoginRequestDTO;
 import com.example.FullStackTodo.DTO.LoginResponseDTO;
 import com.example.FullStackTodo.DTO.SignUpUserDto;
+import com.example.FullStackTodo.DTO.UserResponseDto;
 import com.example.FullStackTodo.Models.RefreshToken;
 import com.example.FullStackTodo.Models.User;
 import com.example.FullStackTodo.Repo.UserRepo;
@@ -40,14 +41,14 @@ public class WebSecurityService {
 
 
 
-    public ResponseEntity<SignUpUserDto> signUp(SignUpUserDto signUpUserDto) throws Exception {
+    public ResponseEntity<UserResponseDto> signUp(SignUpUserDto signUpUserDto) throws Exception {
         User oUser =  userRepo.findByEmail(signUpUserDto.getEmail());
         if(oUser!=null) throw new Exception("Email Already Exsist");
         long id= databaseSeqService.generateSequence(User.SEQUENCE_NAME);
         String encodePassword = passwordEncoder.encode(signUpUserDto.getPassword());
         User User = new User(id, signUpUserDto.getEmail(), signUpUserDto.getUsername(), encodePassword);
        User saveUser =  userRepo.save(User);
-        SignUpUserDto signUpUserDto1 = new SignUpUserDto(saveUser.getUsername(), saveUser.getEmail(), saveUser.getPassword());
+       UserResponseDto signUpUserDto1 = new UserResponseDto(saveUser.getUsername(),saveUser.getEmail()) ;
         return new ResponseEntity<>(signUpUserDto1, HttpStatus.CREATED);
 
 

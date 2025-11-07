@@ -7,6 +7,7 @@ import com.example.FullStackTodo.Models.Todo;
 import com.example.FullStackTodo.Models.User;
 import com.example.FullStackTodo.Repo.TodoRepo;
 import io.jsonwebtoken.Jwt;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +22,7 @@ import java.util.Objects;
 import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
-
+@Slf4j
 @Service
 public class TodoService {
     private final TodoRepo repo;
@@ -59,10 +60,17 @@ public class TodoService {
     }
 
     public List<Todo> getAllTodos() throws Exception {
-    long id = getUserId();
-        return repo.findAllByUserId(id);
-    }
+        try {
+            long id = getUserId();
 
+            return repo.findAllByUserId(id);
+
+
+        } catch (Exception e) {
+
+            throw new Exception(e.getMessage());
+        }
+    }
     public String deleteTodo(long id) {
 
 

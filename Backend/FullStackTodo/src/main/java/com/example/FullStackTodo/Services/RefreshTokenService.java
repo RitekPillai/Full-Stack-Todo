@@ -1,17 +1,23 @@
 package com.example.FullStackTodo.Services;
 
 
+import com.example.FullStackTodo.DTO.UserResponseDto;
 import com.example.FullStackTodo.Models.RefreshToken;
 import com.example.FullStackTodo.Models.User;
 import com.example.FullStackTodo.Repo.RefreshTokenRepo;
 import com.example.FullStackTodo.DTO.TokenRefreshResponseDTO;
 import com.example.FullStackTodo.Repo.UserRepo;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.springframework.security.core.context.SecurityContextHolder.getContext;
 
 @Service
 public class RefreshTokenService {
@@ -57,9 +63,28 @@ public class RefreshTokenService {
                   User user = userRepo.findByEmail(email);
                   String newJwt = authUtil.generateJWTToken(user);
 
-                  return ResponseEntity.ok(new TokenRefreshResponseDTO(newJwt,token));
+                  Long id = user.getId();
+
+                  return ResponseEntity.ok(new TokenRefreshResponseDTO(newJwt,token,id));
 
               } ).orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
 
+    }
+
+    public UserResponseDto getAuthenticatedUser() throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String errormesg = "";
+        try{
+            if(authentication.isAuthenticated()){
+                String name = authentication.getName();
+                System.out.println(name);
+                User user  =   userRepo.findByUsername(name);
+                return new UserResponseDto(user.getUsername(), user.getEmail());
+            };
+        } catch (Exception e) {
+         errormesg =    e.getMessage();
+            throw new RuntimeException(e.toString());
+        }
+      throw    new Exception("Error "+errormesg.toString());
     }
 }

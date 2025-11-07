@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-
-import 'package:http/http.dart' as http;
+import 'package:fullstacktodo/Modules/Authentication/model_View/Services/AuthenticatedClientService.dart';
+import 'package:fullstacktodo/secrets/key.dart';
+import 'package:fullstacktodo/utils/authException.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/Todo.dart';
 
 class Todorepo {
-  final String baseUrl = 'http://localhost:8080';
+  final String baseUrl = 'http://$secretskey:8080/todo';
+  final AuthenticatedClientService _authenticatedClientService =
+      AuthenticatedClientService();
 
   Future<List<Todo>> fetchTodo() async {
-    final response = await http.get(Uri.parse(baseUrl));
+    final response = await _authenticatedClientService.get(Uri.parse(baseUrl));
 
     if (response.statusCode == 200) {
       try {
@@ -16,12 +19,10 @@ class Todorepo {
 
         return todoJsonList.map((json) => Todo.fromJson(json)).toList();
       } catch (e) {
-        throw Exception('Failed to parse todo data: $e');
+        rethrow;
       }
     } else {
-      throw Exception(
-        'Failed to load todos. Status code: ${response.statusCode}',
-      );
+      throw AuthException.fromJson(jsonDecode(response.body));
     }
   }
 
@@ -30,7 +31,7 @@ class Todorepo {
 
     debugPrint('Sending Payload: ${jsonEncode(payload)}');
 
-    final response = await http.post(
+    final response = await _authenticatedClientService.post(
       Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
@@ -40,12 +41,10 @@ class Todorepo {
       try {
         return Todo.fromJson(json.decode(response.body));
       } catch (e) {
-        throw Exception('Todo created but failed to parse response: $e');
+        rethrow;
       }
     } else {
-      throw Exception(
-        'Failed to create todo. Status: ${response.statusCode}. Response: ${response.body}',
-      );
+      throw AuthException.fromJson(jsonDecode(response.body));
     }
   }
 
@@ -53,18 +52,13 @@ class Todorepo {
     final Map<String, dynamic> payload = todo.toJson();
     final int id = todo.id!;
 
-    final response = await http.put(
-      // ⚠️ Recommended change: Use path parameter for REST standard, though query works if the server is configured for it.
-      // Uri.parse("$baseUrl/$id"),
+    final response = await _authenticatedClientService.put(
       Uri.parse("$baseUrl?id=$id"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
 
-    // Check for successful status codes (200-299)
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      // ✅ FINAL FIX: If status is success, bypass parsing the bad body
-      // and return the original Todo object (which contains the updated status/data).
       return todo;
     } else {
       // Failure path (4xx/5xx)
@@ -76,7 +70,9 @@ class Todorepo {
 
   Future<void> deleteTodo(int id) async {
     try {
-      final response = await http.delete(Uri.parse("$baseUrl?id=$id"));
+      final response = await _authenticatedClientService.delete(
+        Uri.parse("$baseUrl?id=$id"),
+      );
 
       if (response.statusCode == 200) {
         debugPrint("---------------------Deleted-------------------------");

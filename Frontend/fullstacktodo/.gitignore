@@ -32,6 +32,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+D:\Projects\Full_stack_Todo\Frontend\fullstacktodo\lib\secrets\key.dart
+secrets/key.dart
 
 # Symbolication related
 app.*.symbols

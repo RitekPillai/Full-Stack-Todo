@@ -13,7 +13,8 @@ class TodoLoading extends TodoState {}
 
 class TodoLoaded extends TodoState {
   final List<Todo> todo;
-  const TodoLoaded(this.todo);
+  final String username;
+  const TodoLoaded(this.todo, this.username);
   @override
   List<Object> get props => [todo];
 }

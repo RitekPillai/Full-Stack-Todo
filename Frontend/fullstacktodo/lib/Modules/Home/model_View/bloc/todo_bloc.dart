@@ -1,23 +1,30 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fullstacktodo/Modules/Authentication/model_View/Bloc/bloc/auth_bloc.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/Todo.dart';
 import 'package:fullstacktodo/Modules/Home/data/repo/todoRepo.dart';
-import 'package:fullstacktodo/Modules/Home/view/Pages/todoCreate.dart';
+import 'package:fullstacktodo/utils/authException.dart';
 
 part 'todo_event.dart';
 part 'todo_state.dart';
 
 class TodoBloc extends Bloc<TodoEvent, TodoState> {
   final Todorepo _todorepo;
+  final AuthBloc _authBloc;
 
-  TodoBloc(this._todorepo) : super(TodoInitial()) {
+  TodoBloc(this._todorepo, this._authBloc) : super(TodoInitial()) {
     on<LoadTodoEvent>((event, emit) async {
       try {
         //  emit(TodoLoading());
         final users = await _todorepo.fetchTodo();
-        debugPrint(users.toString());
-        emit(TodoLoaded(users));
+
+        final authstate = _authBloc.state;
+        if (authstate is Authauthenticated) {
+          final String username = authstate.user.username;
+          debugPrint("USERNAME______________$username");
+          emit(TodoLoaded(users, username));
+        }
       } catch (e) {
         emit(TodoFailed(e.toString()));
       }
@@ -54,8 +61,12 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
           }
           return todo;
         }).toList();
+        final authstate = _authBloc.state;
+        if (authstate is Authauthenticated) {
+          final String username = authstate.user.username;
 
-        emit(TodoLoaded(updatedList));
+          emit(TodoLoaded(updatedList, username));
+        }
       }
     } catch (e) {
       emit(TodoFailed(e.toString()));
@@ -76,13 +87,21 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
       if (currentState is TodoLoaded) {
         final List<Todo> updatedList = [...currentState.todo, newTodo];
 
-        emit(TodoLoaded(updatedList));
+        final authstate = _authBloc.state;
+        if (authstate is Authauthenticated) {
+          final String username = authstate.user.username;
+
+          emit(TodoLoaded(updatedList, username));
+        }
       } else {
         emit(TodoCreated(newTodo));
       }
     } catch (e) {
       debugPrint(e.toString());
       emit(TodoFailed("Failed to create todo: ${e.toString()}"));
+      if (e is AuthException) {
+        emit(TodoFailed("Failed to create todo: ${e.toString()}"));
+      }
     }
   }
 

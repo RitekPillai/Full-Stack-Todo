@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fullstacktodo/Modules/Authentication/data/Model/UserResponseDTO.dart';
+import 'package:fullstacktodo/Modules/Authentication/model_View/Bloc/bloc/auth_bloc.dart';
+import 'package:fullstacktodo/Modules/Authentication/model_View/Services/UserService.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/Todo.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/status.dart';
 import 'package:fullstacktodo/Modules/Home/model_View/bloc/todo_bloc.dart';
@@ -30,6 +33,7 @@ class Hompage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xff998cff),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: false,
         backgroundColor: Color(0xff998cff),
         title: SingleChildScrollView(
@@ -38,9 +42,26 @@ class Hompage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Hello User",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              BlocBuilder<TodoBloc, TodoState>(
+                builder: (context, state) {
+                  if (state is TodoLoaded) {
+                    return Text(
+                      "Hello ${state.username}",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  } else {
+                    return Text(
+                      "Hello user",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  }
+                },
               ),
               const SizedBox(height: 5),
               Text("Here are your Task's"),

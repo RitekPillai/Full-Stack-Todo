@@ -22,7 +22,6 @@ String dateCheck(DateTime date) {
     return "Yesterday";
   }
   return DateFormat.MMMMd().format(date);
-  ;
 }
 
 Widget todoTile(Todo todo, BuildContext context, int? index) {

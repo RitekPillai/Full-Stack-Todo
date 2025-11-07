@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<application
+    android:usesCleartextTraffic="true"
+    ... >
+    </application>
     <application
         android:label="fullstacktodo"
         android:name="${applicationName}"

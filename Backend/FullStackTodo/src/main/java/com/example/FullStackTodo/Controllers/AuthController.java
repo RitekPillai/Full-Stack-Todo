@@ -1,11 +1,9 @@
 package com.example.FullStackTodo.Controllers;
 
 
-import com.example.FullStackTodo.DTO.LoginRequestDTO;
-import com.example.FullStackTodo.DTO.LoginResponseDTO;
-import com.example.FullStackTodo.DTO.SignUpUserDto;
-import com.example.FullStackTodo.DTO.TokenRefreshResponseDTO;
+import com.example.FullStackTodo.DTO.*;
 import com.example.FullStackTodo.Models.RefreshToken;
+import com.example.FullStackTodo.Models.User;
 import com.example.FullStackTodo.Services.RefreshTokenService;
 import com.example.FullStackTodo.Services.WebSecurityService;
 import io.jsonwebtoken.Jwts;
@@ -30,7 +28,7 @@ public class AuthController {
 
 
         @PostMapping("/signup")
-    public ResponseEntity<SignUpUserDto> signUp(
+    public ResponseEntity<UserResponseDto> signUp(
            @RequestBody SignUpUserDto signUpUserDto
         ) throws Exception {
             return webSecurityService.signUp(signUpUserDto);
@@ -50,5 +48,12 @@ public class AuthController {
         return refreshTokenService.refreshToken(token);
         }
 
+        @GetMapping("/user")
+
+    public UserResponseDto getAuthenticatedUser(
+
+        ) throws Exception {
+        return  refreshTokenService.getAuthenticatedUser();
+        }
 
 }

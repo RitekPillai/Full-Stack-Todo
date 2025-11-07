@@ -33,25 +33,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         try {
+            log.info("Inside the JWT Filter");
             log.info("incoming request: {}", request.getRequestURI());
 
+
             final String requestHeaderToken = request.getHeader("Authorization");
-            if (requestHeaderToken == null || !requestHeaderToken.startsWith("Bearer")) {
+            log.info("Request Header:{}",requestHeaderToken);
+            if (requestHeaderToken == null || !requestHeaderToken.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
                 return;
             }
+
             String token = requestHeaderToken.split("Bearer ")[1];
             String email = authUtil.getUsernamefromToken(token);
-            log.info("EMAIL OF THE USER ______________: {}", token);
+            log.info("Acess Token:{}",token);
+            log.info("Authenticated Email: {}", email); // Cleaned up log
+
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User user = userRepo.findByEmail(email);
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-
+                log.info("User {} successfully authenticated via JWT.", email);
             }
             filterChain.doFilter(request, response);
         } catch (Exception e) {
            handlerExceptionResolver.resolveException(request,response,null,e);
+           log.info("error: ",e.getMessage());
+           return;
         }
     }
 }
