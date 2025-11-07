@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fullstacktodo/Modules/Authentication/data/Model/UserResponseDTO.dart';
 import 'package:fullstacktodo/Modules/Authentication/model_View/Bloc/bloc/auth_bloc.dart';
-import 'package:fullstacktodo/Modules/Authentication/model_View/Services/UserService.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/Todo.dart';
 import 'package:fullstacktodo/Modules/Home/data/model/status.dart';
 import 'package:fullstacktodo/Modules/Home/model_View/bloc/todo_bloc.dart';

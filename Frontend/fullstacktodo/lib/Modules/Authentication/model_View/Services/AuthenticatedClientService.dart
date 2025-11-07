@@ -54,11 +54,10 @@ class AuthenticatedClientService extends http.BaseClient {
       if (refreshToken == null) {
         throw Exception("REFRESH TOKEN IS NULL");
       }
-      final Map<String, dynamic> bodyData = {'refreshToken': refreshToken};
-      final response = await _inner.post(
+
+      final response = await http.post(
         Uri.parse("$baseUrl/refresh"),
-        body: jsonEncode(refreshToken),
-        headers: {'Content-Type': 'application/json'},
+        body: refreshToken,
       );
       if (response.statusCode == 200) {
         debugPrint(response.body);
